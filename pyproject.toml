@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "autocar"
+version = "0.1.0"
+description = ""
+authors = ["sehwan505 <sehwan505@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+tensorflow = "^2.18.0"
+opencv-python = "^4.10.0.84"
+keras = "^3.7.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
