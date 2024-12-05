@@ -10,9 +10,27 @@ class Image:
         self.contourCenterX = 0
         self.MainContour = None
 
+    def minimize_light_effect(self, image):
+        imgray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        imgray = clahe.apply(imgray)
+        imgray = cv2.GaussianBlur(imgray, (5, 5), 0)
+
+        dilated_img = cv2.dilate(imgray, np.ones((15, 15), np.uint8))
+        bg_img = cv2.medianBlur(dilated_img, 21)
+        diff_img = 255 - cv2.absdiff(imgray, bg_img)
+        imgray = cv2.normalize(
+            diff_img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX
+        )
+        thresh = cv2.adaptiveThreshold(
+            imgray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2
+        )
+
+        return thresh
+
     def Process(self):
         # 이미지를 흑백으로 변환한 뒤 Threshold 값을 기준으로 0 또는 1로 값을 정한다
-        imgray = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)  # Convert to Gray Scale
+        imgray = self.minimize_light_effect(self.image)
         ret, thresh = cv2.threshold(
             imgray, 100, 255, cv2.THRESH_BINARY_INV
         )  # Get Threshold

@@ -29,7 +29,6 @@ def RepackImages(images):
             img = np.concatenate((img, images[1].image), axis=0)
         if i > 1:
             img = np.concatenate((img, images[i].image), axis=0)
-
     return img
 
 

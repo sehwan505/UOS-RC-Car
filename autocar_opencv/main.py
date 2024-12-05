@@ -53,7 +53,7 @@ def get_direction(y1, y2, y3, y4, y5, y6):
     y4 -= WIDTH / 2
     y5 -= WIDTH / 2
     y6 -= WIDTH / 2
-
+    print("y1:%d, y2:%d, y3:%d, y4:%d, y5:%d, y6:%d" % (y1, y2, y3, y4, y5, y6))
     master_point = 0
 
     # +: right
@@ -82,6 +82,7 @@ def get_direction(y1, y2, y3, y4, y5, y6):
         * (y1 * 0.7 + y2 * 0.85 + y3 + y4 * 1.1 + y5 * 1.2 + y6 * 1.35)
         / (num_valid + 0.1)
     )
+    print(master_point)
 
     master_point += y1 * 0.5
     master_point += y2 * 0.4
@@ -93,8 +94,6 @@ def get_direction(y1, y2, y3, y4, y5, y6):
     direction = "F"
     if master_point > -TURN_MAX and master_point < TURN_MAX:
         direction = "F"
-    # if master_point < -TURN_MID and master_point > -TURN_MAX:
-    #     direction = "r"
     if master_point >= TURN_MAX:
         direction = "L"
     if master_point <= -TURN_MAX:
@@ -131,16 +130,6 @@ while True:
         # 이미지를 조각내서 윤곽선을 표시하게 무게중심 점을 얻는다
         Points = SlicePart(fram, Images, N_SLICES)
         print("Points : ", Points)
-
-        # 조각난 이미지를 한 개로 합친다
-        fm = RepackImages(Images)
-
-        # 완성된 이미지를 표시한다
-        cv2.imshow("Vision Race", fm)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            cv2.destroyAllWindows()
-
-        # command
         get_direction(
             Points[0][0],
             Points[1][0],
