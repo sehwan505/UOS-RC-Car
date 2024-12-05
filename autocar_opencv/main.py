@@ -111,19 +111,27 @@ def get_direction(y1, y2, y3, y4, y5, y6):
 
 
 # Picamera2 설정
-picam2 = Picamera2()
-camera_config = picam2.create_still_configuration(
-    main={"format": "BGR888", "size": (WIDTH, HEIGHT)}
-)
-picam2.configure(camera_config)
-picam2.start()
+# picam2 = Picamera2()
+# camera_config = picam2.create_still_configuration(
+#     main={"format": "BGR888", "size": (WIDTH, HEIGHT)}
+# )
+# picam2.configure(camera_config)
+# picam2.start()
+img = cv2.VideoCapture(0)
+img.set(cv2.CAP_PROP_FPS, 30)
+img.set(cv2.CAP_PROP_SATURATION, 0)
+img.set(cv2.CAP_PROP_BRIGHTNESS, 0.61)
+img.set(cv2.CAP_PROP_CONTRAST, 0.54)
+img.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
+img.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 
 # 카메라 워밍업 시간
 time.sleep(0.1)
 
 skip = 30
 while True:
-    fram = picam2.capture_array()
+    # fram = picam2.capture_array()
+    ret, fram = img.read()
     if skip > 0:
         skip -= 1
     elif fram is not None:
