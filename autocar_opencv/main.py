@@ -111,27 +111,19 @@ def get_direction(y1, y2, y3, y4, y5, y6):
 
 
 # Picamera2 설정
-# picam2 = Picamera2()
-# camera_config = picam2.create_still_configuration(
-#     main={"format": "BGR888", "size": (WIDTH, HEIGHT)}
-# )
-# picam2.configure(camera_config)
-# picam2.start()
-img = cv2.VideoCapture(0)
-img.set(cv2.CAP_PROP_FPS, 30)
-img.set(cv2.CAP_PROP_SATURATION, 0)
-img.set(cv2.CAP_PROP_BRIGHTNESS, 0.61)
-img.set(cv2.CAP_PROP_CONTRAST, 0.54)
-img.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
-img.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
+picam2 = Picamera2()
+camera_config = picam2.create_still_configuration(
+    main={"format": "BGR888", "size": (WIDTH, HEIGHT)}
+)
+picam2.configure(camera_config)
+picam2.start()
 
 # 카메라 워밍업 시간
 time.sleep(0.1)
 
 skip = 30
 while True:
-    # fram = picam2.capture_array()
-    ret, fram = img.read()
+    fram = picam2.capture_array()
     if skip > 0:
         skip -= 1
     elif fram is not None:
@@ -139,6 +131,13 @@ while True:
         # 이미지를 조각내서 윤곽선을 표시하게 무게중심 점을 얻는다
         Points = SlicePart(fram, Images, N_SLICES)
         print("Points : ", Points)
+
+        # 조각난 이미지를 한 개로 합친다
+        fm = RepackImages(Images)
+        output_path = f"output_image.jpg"
+        cv2.imwrite(output_path, fm)
+
+        # command
         get_direction(
             Points[0][0],
             Points[1][0],
