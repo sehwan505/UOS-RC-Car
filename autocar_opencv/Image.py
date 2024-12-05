@@ -30,14 +30,10 @@ class Image:
 
     def Process(self):
         # 이미지를 흑백으로 변환한 뒤 Threshold 값을 기준으로 0 또는 1로 값을 정한다
-        imgray = self.minimize_light_effect(self.image)
-        ret, thresh = cv2.threshold(
-            imgray, 100, 255, cv2.THRESH_BINARY_INV
-        )  # Get Threshold
-
+        thresh = self.minimize_light_effect(self.image)
         self.contours, _ = cv2.findContours(
             thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-        )  # Get contour
+        )
 
         self.prev_MC = self.MainContour
         if self.contours:
@@ -45,8 +41,8 @@ class Image:
 
             self.height, self.width = self.image.shape[:2]
 
-            self.middleX = int(self.width / 2)  # Get X coordenate of the middle point
-            self.middleY = int(self.height / 2)  # Get Y coordenate of the middle point
+            self.middleX = int(self.width / 2)
+            self.middleY = int(self.height / 2)
 
             self.prev_cX = self.contourCenterX
             if self.getContourCenter(self.MainContour) != 0:
@@ -93,6 +89,8 @@ class Image:
                 1,
                 cv2.LINE_AA,
             )
+            output_path = "output_image.jpg"  # 저장할 경로와 파일명
+            cv2.imwrite(output_path, self.image)  # 이미지를 파일로 저장
         return [self.contourCenterX, self.middleY]
 
     def getContourCenter(self, contour):
