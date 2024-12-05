@@ -8,9 +8,7 @@ from keras.layers import Dense
 
 import numpy as np
 import tensorflow as tf
-
-# import pickle
-from get_image_data import *
+from .get_image_data import *
 
 
 class DNN_Driver:
@@ -41,6 +39,7 @@ class DNN_Driver:
 
     def predict_direction(self, img):
         print(img.shape)
+        #        img = np.array([np.reshape(img,img.shape**2)])
         ret = self.model.predict(np.array([img]))
         return ret
 
