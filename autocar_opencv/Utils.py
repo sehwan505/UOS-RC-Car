@@ -16,7 +16,9 @@ def SlicePart(im, images, slices):
         crop_img = im[part : part + sl, 0:width]
         # 조각난 이미지 crop_img를 images[]에 저장
         images[i].image = crop_img
-        cPoint = images[i].Process()
+        cPoint, image = images[i].Process()
+        output_path = f"output_image_{i}.jpg"
+        cv2.imwrite(output_path, image)
         points.append(cPoint)
     return points
 

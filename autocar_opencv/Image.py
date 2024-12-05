@@ -89,9 +89,7 @@ class Image:
                 1,
                 cv2.LINE_AA,
             )
-            output_path = "output_image.jpg"  # 저장할 경로와 파일명
-            cv2.imwrite(output_path, self.image)  # 이미지를 파일로 저장
-        return [self.contourCenterX, self.middleY]
+        return [self.contourCenterX, self.middleY], self.image
 
     def getContourCenter(self, contour):
         M = cv2.moments(contour)
