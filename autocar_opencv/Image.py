@@ -63,7 +63,7 @@ class Image:
                 1,
                 (200, 0, 200),
                 2,
-                cv2.CV_AA,
+                cv2.LINE_AA,
             )
             cv2.putText(
                 self.image,
@@ -73,7 +73,7 @@ class Image:
                 0.5,
                 (200, 0, 200),
                 1,
-                cv2.CV_AA,
+                cv2.LINE_AA,
             )
         return [self.contourCenterX, self.middleY]
 
