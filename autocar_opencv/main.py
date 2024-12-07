@@ -25,7 +25,9 @@ direction = 0
 Images = []
 N_SLICES = 3
 
-ser = serial.Serial("/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_754393137373514170C0-if00", 9600)
+ser = serial.Serial(
+    "/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_754393137373514170C0-if00", 9600
+)
 
 print("start")
 time.sleep(3)
@@ -73,7 +75,9 @@ def get_direction(y1, y2, y3):
         y3 = 0
 
     # master_point의 스케일을 y1, y2, y3의 범위로 유지
-    master_point = (y1 * weight_y1 + y2 * weight_y2 + y3 * weight_y3) / (total_weight if num_valid > 0 else 1)
+    master_point = (y1 * weight_y1 + y2 * weight_y2 + y3 * weight_y3) / (
+        total_weight if num_valid > 0 else 1
+    )
     # master_point += y1 * 0.5
     # master_point += y2 * 0.4
     # master_point += y3 * 0.3
@@ -132,9 +136,9 @@ while True:
             Points[0][0],
             Points[1][0],
             Points[2][0],
-            #Points[3][0],
-            #Points[4][0],
-            #Points[5][0],
+            # Points[3][0],
+            # Points[4][0],
+            # Points[5][0],
         )
 
     else:

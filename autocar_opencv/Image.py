@@ -92,6 +92,19 @@ class Image:
 
             # 이미지 크기 가져오기
             self.height, self.width = self.image.shape[:2]
+            if len(contour_centers) > 1:  # 중심점이 2개 이상일 때만 분포 확인
+                # 중심점들의 Bounding Box 계산
+                contour_centers = np.array(contour_centers)
+                distances = np.linalg.norm(
+                    contour_centers[:, None] - contour_centers, axis=2
+                )
+                std_distance = np.std(distances)
+
+                # 기준: Bounding Box가 화면의 70% 이상이거나, 중심점 간 거리 분포가 넓으면 산재로 간주
+                if std_distance > 0.2 * self.width:
+                    self.contourCenterX, self.contourCenterY = 0, 0  # Invalid 상태
+                    print("invalid white")
+                    return [self.contourCenterX, self.middleY], self.image
 
             # 이미지 중앙 좌표 계산
             self.middleX = int(self.width / 2)
