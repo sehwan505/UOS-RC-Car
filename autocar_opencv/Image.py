@@ -60,67 +60,74 @@ class Image:
         cv2.imshow("Thresh.jpg", thresh)
         return thresh
 
+    def calculateAverageCenter(self, contours):
+        total_x, total_y = 0, 0
+        valid_contours = 0
+
+        for contour in contours:
+            center = self.getContourCenter(contour)
+            if center != 0:
+                total_x += center[0]
+                total_y += center[1]
+                valid_contours += 1
+
+        if valid_contours > 0:
+            avg_x = total_x // valid_contours
+            avg_y = total_y // valid_contours
+            return [avg_x, avg_y]
+        else:
+            return [0, 0]
+
     def Process(self):
-        # 이미지를 흑백으로 변환한 뒤 Threshold 값을 기준으로 0 또는 1로 값을 정한다
         thresh = self.minimize_light_effect(self.image)
         self.contours, _ = cv2.findContours(
             thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         )
 
-        self.prev_MC = self.MainContour
         if self.contours:
-            self.MainContour = max(self.contours, key=cv2.contourArea)
+            # 모든 윤곽의 평균 중심 계산
+            self.contourCenterX, self.contourCenterY = self.calculateAverageCenter(
+                self.contours
+            )
 
+            # 이미지 크기 가져오기
             self.height, self.width = self.image.shape[:2]
 
+            # 이미지 중앙 좌표 계산
             self.middleX = int(self.width / 2)
             self.middleY = int(self.height / 2)
 
-            self.prev_cX = self.contourCenterX
-            if self.getContourCenter(self.MainContour) != 0:
-                self.contourCenterX = self.getContourCenter(self.MainContour)[0]
-                if abs(self.prev_cX - self.contourCenterX) > 5:
-                    self.correctMainContour(self.prev_cX)
-            else:
-                self.contourCenterX = 0
+            # 윤곽선 그리기: 초록색
+            cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 1)
 
-            self.dir = int(
-                (self.middleX - self.contourCenterX)
-                * self.getContourExtent(self.MainContour)
+            # 중심점 그리기: 흰색
+            cv2.circle(
+                self.image,
+                (self.contourCenterX, self.contourCenterY),
+                7,
+                (255, 255, 255),
+                -1,
             )
 
-            # 윤곽선은 초록색, 무게중심은 흰색 원, 그림의 중앙 지점은 빨간 원으로 표시
-            cv2.drawContours(
-                self.image, self.MainContour, -1, (0, 255, 0), 3
-            )  # Draw Contour GREEN
-            cv2.circle(
-                self.image, (self.contourCenterX, self.middleY), 7, (255, 255, 255), -1
-            )  # Draw dX circle WHITE
-            cv2.circle(
-                self.image, (self.middleX, self.middleY), 3, (0, 0, 255), -1
-            )  # Draw middle circle RED
+            # 이미지 중앙점 그리기: 빨간색
+            cv2.circle(self.image, (self.middleX, self.middleY), 3, (0, 0, 255), -1)
 
+            # 텍스트 추가
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(
                 self.image,
                 str(self.middleX - self.contourCenterX),
-                (self.contourCenterX + 20, self.middleY),
+                (self.contourCenterX + 20, self.contourCenterY),
                 font,
                 1,
                 (200, 0, 200),
                 2,
                 cv2.LINE_AA,
             )
-            cv2.putText(
-                self.image,
-                "Weight:%.3f" % self.getContourExtent(self.MainContour),
-                (self.contourCenterX + 20, self.middleY + 35),
-                font,
-                0.5,
-                (200, 0, 200),
-                1,
-                cv2.LINE_AA,
-            )
+        else:
+            # 윤곽이 없는 경우 초기값 반환
+            self.contourCenterX, self.contourCenterY = 0, 0
+
         return [self.contourCenterX, self.middleY], self.image
 
     def getContourCenter(self, contour):
