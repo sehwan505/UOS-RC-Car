@@ -10,58 +10,17 @@ class Image:
         self.contourCenterX = 0
         self.MainContour = None
 
-    def single_scale_retinex(self, channel, sigma=15):
-        # float 변환 및 로그 영역으로 이동
-        img = channel.astype(np.float32) + 1.0
-        log_img = np.log(img)
-
-        # 가우시안 블러를 이용해 조명성분 추정
-        blur = cv2.GaussianBlur(img, (0, 0), sigma)
-        log_blur = np.log(blur)
-
-        # 반사 성분 = 로그(원본) - 로그(조명)
-        retinex = log_img - log_blur
-        return retinex
-
-    def retinex_enhancement(self, bgr_img, sigma=15):
-        # BGR 채널 각각에 SSR 적용
-        b, g, r = cv2.split(bgr_img)
-        b_ret = self.single_scale_retinex(b, sigma)
-        g_ret = self.single_scale_retinex(g, sigma)
-        r_ret = self.single_scale_retinex(r, sigma)
-
-        merged = cv2.merge([b_ret, g_ret, r_ret])
-        exp_img = np.exp(merged)  # exp로 복원
-        exp_img = exp_img - np.min(exp_img)
-        exp_img = exp_img / np.max(exp_img) * 255.0
-        exp_img = np.clip(exp_img, 0, 255).astype(np.uint8)
-        return exp_img
-
-    def minimize_light_effect(self, image, use_retinex=True):
-        # 조명 보정
-        if use_retinex:
-            processed = self.retinex_enhancement(image, sigma=15)
-        else:
-            processed = image
-
-        # 그레이 변환
-        imgray = cv2.cvtColor(processed, cv2.COLOR_BGR2GRAY)
-
-        # Top-hat 변환으로 국소 명암 보정 (선 강조)
+    def minimize_light_effect(self, image):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
-        tophat = cv2.morphologyEx(imgray, cv2.MORPH_TOPHAT, kernel)
+        tophat = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, kernel)
 
-        # 정규화
-        normalized = cv2.normalize(tophat, None, 0, 255, cv2.NORM_MINMAX)
-
-        # Otsu 이진화(검정 선을 찾기 위해 INV 사용)
         _, thresh = cv2.threshold(
-            normalized, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+            tophat, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
         )
 
-        # Morphological 연산으로 선 정제
-        kernel_line = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        clean_line = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel_line)
+        line_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        clean_line = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, line_kernel)
 
         return clean_line
 
