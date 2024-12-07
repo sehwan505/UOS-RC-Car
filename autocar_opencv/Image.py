@@ -90,6 +90,13 @@ class Image:
                 self.contours
             )
 
+            # Contour 중심점 추출
+            contour_centers = []
+            for contour in self.contours:
+                center = self.getContourCenter(contour)
+                if center != 0:
+                    contour_centers.append(center)
+
             # 이미지 크기 가져오기
             self.height, self.width = self.image.shape[:2]
             if len(contour_centers) > 1:  # 중심점이 2개 이상일 때만 분포 확인
