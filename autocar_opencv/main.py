@@ -16,8 +16,8 @@ from Utils import *
 WIDTH = 320
 HEIGHT = 240
 TOLERANCE = 140
-TURN_MAX = 105
-TURN_MID = 35
+TURN_MAX = 80
+TURN_MID = 20
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 direction = 0
