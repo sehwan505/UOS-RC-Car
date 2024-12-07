@@ -38,7 +38,6 @@ class Image:
         return exp_img
 
     def minimize_light_effect(self, image, use_retinex=True):
-        # 조명 보정
         if use_retinex:
             processed = self.retinex_enhancement(image, sigma=15)
         else:
@@ -47,17 +46,18 @@ class Image:
         # 그레이 변환
         imgray = cv2.cvtColor(processed, cv2.COLOR_BGR2GRAY)
 
-        # Top-hat 변환으로 국소 명암 보정 (선 강조)
+        # Black-hat 변환으로 어두운 선 강조
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15, 15))
-        tophat = cv2.morphologyEx(imgray, cv2.MORPH_TOPHAT, kernel)
+        blackhat = cv2.morphologyEx(imgray, cv2.MORPH_BLACKHAT, kernel)
 
         # 정규화
-        normalized = cv2.normalize(tophat, None, 0, 255, cv2.NORM_MINMAX)
+        normalized = cv2.normalize(blackhat, None, 0, 255, cv2.NORM_MINMAX)
 
-        # Otsu 이진화(검정 선을 찾기 위해 INV 사용)
+        # Otsu 이진화 (검은 선이 강조되어 흰색으로 표현될 경우, 일반 THRESH_BINARY 사용)
         _, thresh = cv2.threshold(
-            normalized, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+            normalized, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
         )
+        cv2.imshow("Thresh.jpg", thresh)
         return thresh
 
     def Process(self):
