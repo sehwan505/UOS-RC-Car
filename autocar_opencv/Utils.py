@@ -2,7 +2,7 @@
 import numpy as np
 import cv2
 import time
-from .Image import *
+from Image import *
 
 
 # 그림을 slices 의 수만큼 조각낸다
@@ -17,8 +17,6 @@ def SlicePart(im, images, slices):
         # 조각난 이미지 crop_img를 images[]에 저장
         images[i].image = crop_img
         cPoint, image = images[i].Process()
-        output_path = f"output_image_{i}.jpg"
-        cv2.imwrite(output_path, image)
         points.append(cPoint)
     return points
 

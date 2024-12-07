@@ -10,23 +10,22 @@ import cv2
 import time
 from picamera2 import Picamera2
 
-from .Image import *
-from .Utils import *
+from Image import *
+from Utils import *
 
 WIDTH = 320
 HEIGHT = 240
-TOLERANCE = 145
+TOLERANCE = 140
 TURN_MAX = 190
 TURN_MID = 90
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 direction = 0
 
-# N_SLICES만큼 이미지를 조각내서 Images[] 배열에 담는다
 Images = []
 N_SLICES = 6
 
-ser = serial.Serial("/dev/ttyUSB0", 9600)
+#ser = serial.Serial("/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_754393137373514170C0-if00", 9600)
 
 print("start")
 time.sleep(3)
@@ -46,16 +45,15 @@ def in_tolerance(n):
 def get_direction(y1, y2, y3, y4, y5, y6):
 
     num_valid = 6
-
     y1 -= WIDTH / 2
     y2 -= WIDTH / 2
     y3 -= WIDTH / 2
     y4 -= WIDTH / 2
     y5 -= WIDTH / 2
     y6 -= WIDTH / 2
-
+    print("y1:%d, y2:%d, y3:%d, y4:%d, y5:%d, y6:%d" % (y1, y2, y3, y4, y5, y6))
     master_point = 0
-
+    
     # +: right
     # -: left
     if in_tolerance(y1) == False:
@@ -82,23 +80,24 @@ def get_direction(y1, y2, y3, y4, y5, y6):
         * (y1 * 0.7 + y2 * 0.85 + y3 + y4 * 1.1 + y5 * 1.2 + y6 * 1.35)
         / (num_valid + 0.1)
     )
+    #master_point += y1 * 0.5
+    #master_point += y2 * 0.4
+    #master_point += y3 * 0.3
+    #master_point -= y4 * 0.4
+    #master_point -= y5 * 0.5
+    #master_point -= y6 * 0.6
 
-    master_point += y1 * 0.5
-    master_point += y2 * 0.4
-    master_point += y3 * 0.3
-    master_point -= y4 * 0.4
-    master_point -= y5 * 0.5
-    master_point -= y6 * 0.6
+    print(master_point)
 
     direction = "F"
     if master_point > TURN_MID and master_point < TURN_MAX:
-        direction = "l"
-    if master_point < -TURN_MID and master_point > -TURN_MAX:
         direction = "r"
+    if master_point < -TURN_MID and master_point > -TURN_MAX:
+        direction = "l"
     if master_point >= TURN_MAX:
-        direction = "L"
-    if master_point <= -TURN_MAX:
         direction = "R"
+    if master_point <= -TURN_MAX:
+        direction = "L"
 
     cmd = ("%c\n" % (direction)).encode("ascii")
 
@@ -106,6 +105,7 @@ def get_direction(y1, y2, y3, y4, y5, y6):
 
     ser.write(cmd)
     print("send")
+    time.sleep(1)
     read_serial = ser.readline()
     print("<<< %s" % (read_serial))
 
@@ -131,21 +131,18 @@ while True:
         # 이미지를 조각내서 윤곽선을 표시하게 무게중심 점을 얻는다
         Points = SlicePart(fram, Images, N_SLICES)
         print("Points : ", Points)
-
-        # 조각난 이미지를 한 개로 합친다
         fm = RepackImages(Images)
         output_path = f"output_image.jpg"
         cv2.imwrite(output_path, fm)
-
         # command
-        get_direction(
-            Points[0][0],
-            Points[1][0],
-            Points[2][0],
-            Points[3][0],
-            Points[4][0],
-            Points[5][0],
-        )
+        #get_direction(
+        #    Points[0][0],
+        #    Points[1][0],
+        #    Points[2][0],
+        #    Points[3][0],
+        #    Points[4][0],
+        #    Points[5][0],
+        #)
 
     else:
         print("not even processed")
