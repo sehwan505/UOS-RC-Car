@@ -16,8 +16,8 @@ from Utils import *
 WIDTH = 320
 HEIGHT = 240
 TOLERANCE = 140
-TURN_MAX = 190
-TURN_MID = 90
+TURN_MAX = 105
+TURN_MID = 35
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 direction = 0
@@ -25,7 +25,7 @@ direction = 0
 Images = []
 N_SLICES = 3
 
-# ser = serial.Serial("/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_754393137373514170C0-if00", 9600)
+ser = serial.Serial("/dev/serial/by-id/usb-Arduino_Srl_Arduino_Uno_754393137373514170C0-if00", 9600)
 
 print("start")
 time.sleep(3)
@@ -44,7 +44,7 @@ def in_tolerance(n):
 
 def get_direction(y1, y2, y3):
 
-    num_valid = 6
+    num_valid = 3
     y1 -= WIDTH / 2
     y2 -= WIDTH / 2
     y3 -= WIDTH / 2
@@ -54,28 +54,26 @@ def get_direction(y1, y2, y3):
     print("y1:%d, y2:%d, y3:%d" % (y1, y2, y3))
     master_point = 0
 
-    # +: right
-    # -: left
+    weight_y1 = 0.5
+    weight_y2 = 0.75
+    weight_y3 = 1.0
+    total_weight = weight_y1 + weight_y2 + weight_y3
+
     if in_tolerance(y1) == False:
+        total_weight -= weight_y1
         num_valid -= 1
         y1 = 0
     if in_tolerance(y2) == False:
+        total_weight -= weight_y2
         num_valid -= 1
         y2 = 0
     if in_tolerance(y3) == False:
+        total_weight -= weight_y3
         num_valid -= 1
         y3 = 0
-    # if in_tolerance(y4) == False:
-    #     num_valid -= 1
-    #     y4 = 0
-    # if in_tolerance(y5) == False:
-    #     num_valid -= 1
-    #     y5 = 0
-    # if in_tolerance(y6) == False:
-    #     num_valid -= 1
-    #     y6 = 0
 
-    master_point = 2.65 * (y1 * 0.7 + y2 * 0.85 + y3) / (num_valid + 0.1)
+    # master_point의 스케일을 y1, y2, y3의 범위로 유지
+    master_point = (y1 * weight_y1 + y2 * weight_y2 + y3 * weight_y3) / (total_weight if num_valid > 0 else 1)
     # master_point += y1 * 0.5
     # master_point += y2 * 0.4
     # master_point += y3 * 0.3
@@ -101,7 +99,6 @@ def get_direction(y1, y2, y3):
 
     ser.write(cmd)
     print("send")
-    time.sleep(1)
     read_serial = ser.readline()
     print("<<< %s" % (read_serial))
 
@@ -131,14 +128,14 @@ while True:
         output_path = f"output_image.jpg"
         cv2.imwrite(output_path, fm)
         # command
-        # get_direction(
-        #    Points[0][0],
-        #    Points[1][0],
-        #    Points[2][0],
-        #    Points[3][0],
-        #    Points[4][0],
-        #    Points[5][0],
-        # )
+        get_direction(
+            Points[0][0],
+            Points[1][0],
+            Points[2][0],
+            #Points[3][0],
+            #Points[4][0],
+            #Points[5][0],
+        )
 
     else:
         print("not even processed")
