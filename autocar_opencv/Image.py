@@ -37,7 +37,7 @@ class Image:
         exp_img = np.clip(exp_img, 0, 255).astype(np.uint8)
         return exp_img
 
-    def minimize_light_effect_for_black_line(self, image, use_retinex=True):
+    def minimize_light_effect(self, image, use_retinex=True):
         # 조명 보정
         if use_retinex:
             processed = self.retinex_enhancement(image, sigma=15)
