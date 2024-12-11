@@ -80,10 +80,10 @@ class Image:
     def Process(self):
         thresh = self.minimize_light_effect(self.image)
 
-        white_pixels = np.sum(thresh == 255)
+        black_pixels = np.sum(thresh <= 50)
         total_pixels = thresh.size
-        white_ratio = white_pixels / total_pixels
-        if white_ratio > 0.95:
+        black_ratio = black_pixels / total_pixels
+        if black_ratio < 0.05:
             return [0, 0], self.image
 
         self.contours, _ = cv2.findContours(
