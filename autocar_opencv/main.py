@@ -124,7 +124,7 @@ def get_direction(y1, y2, y3, y4, y5, y6):
     if num_valid <= 0:
         direction = previous_direction
         print(direction)
-    cmd = ("%c\n" % (direction)).encode("ascii")
+    cmd = ("%c\n\r" % (direction)).encode("ascii")
 
     print(">>> master_point:%d, cmd:%s" % (master_point, cmd))
 
