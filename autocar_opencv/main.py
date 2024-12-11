@@ -43,12 +43,14 @@ def in_tolerance(n):
         return False
     return True
 
+
 previous_direction = ""
+
 
 def get_direction(y1, y2, y3, y4, y5, y6):
     global previous_direction
 
-    num_valid = 3
+    num_valid = 6
     y1 -= WIDTH / 2
     y2 -= WIDTH / 2
     y3 -= WIDTH / 2
@@ -119,7 +121,7 @@ def get_direction(y1, y2, y3, y4, y5, y6):
         direction = "L"
     if direction != "F":
         previous_direction = direction
-    if num_valid == 0:
+    if num_valid <= 0:
         direction = previous_direction
         print(direction)
     cmd = ("%c\n" % (direction)).encode("ascii")
