@@ -15,9 +15,9 @@ from Utils import *
 
 WIDTH = 320
 HEIGHT = 240
-TOLERANCE = 140
-TURN_MAX = 80
-TURN_MID = 20
+TOLERANCE = 155
+TURN_MAX = 100
+TURN_MID = 25
 
 font = cv2.FONT_HERSHEY_SIMPLEX
 direction = 0
@@ -43,8 +43,10 @@ def in_tolerance(n):
         return False
     return True
 
+previous_direction = ""
 
 def get_direction(y1, y2, y3, y4, y5, y6):
+    global previous_direction
 
     num_valid = 3
     y1 -= WIDTH / 2
@@ -55,13 +57,12 @@ def get_direction(y1, y2, y3, y4, y5, y6):
     y6 -= WIDTH / 2
     print("y1:%d, y2:%d, y3:%d" % (y1, y2, y3))
     master_point = 0
-
-    weight_y1 = 0.5
-    weight_y2 = 0.75
+    weight_y1 = 0.7
+    weight_y2 = 0.85
     weight_y3 = 1.0
-    weight_y4 = 1.0
-    weight_y5 = 1.25
-    weight_y6 = 1.5
+    weight_y4 = 1.1
+    weight_y5 = 1.2
+    weight_y6 = 1.35
     total_weight = weight_y1 + weight_y2 + weight_y3 + weight_y4 + weight_y5 + weight_y6
 
     if in_tolerance(y1) == False:
@@ -116,7 +117,11 @@ def get_direction(y1, y2, y3, y4, y5, y6):
         direction = "R"
     if master_point <= -TURN_MAX:
         direction = "L"
-
+    if direction != "F":
+        previous_direction = direction
+    if num_valid == 0:
+        direction = previous_direction
+        print(direction)
     cmd = ("%c\n" % (direction)).encode("ascii")
 
     print(">>> master_point:%d, cmd:%s" % (master_point, cmd))

@@ -57,7 +57,6 @@ class Image:
         _, thresh = cv2.threshold(
             normalized, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
         )
-        cv2.imshow("Thresh.jpg", thresh)
         return thresh
 
     def calculateAverageCenter(self, contours):
@@ -83,7 +82,6 @@ class Image:
         self.contours, _ = cv2.findContours(
             thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         )
-
         if self.contours:
             # 모든 윤곽의 평균 중심 계산
             self.contourCenterX, self.contourCenterY = self.calculateAverageCenter(
@@ -112,11 +110,9 @@ class Image:
                     self.contourCenterX, self.contourCenterY = 0, 0  # Invalid 상태
                     print("invalid white")
                     return [self.contourCenterX, self.middleY], self.image
-
             # 이미지 중앙 좌표 계산
             self.middleX = int(self.width / 2)
             self.middleY = int(self.height / 2)
-
             # 윤곽선 그리기: 초록색
             cv2.drawContours(self.image, self.contours, -1, (0, 255, 0), 1)
 
@@ -128,7 +124,6 @@ class Image:
                 (255, 255, 255),
                 -1,
             )
-
             # 이미지 중앙점 그리기: 빨간색
             cv2.circle(self.image, (self.middleX, self.middleY), 3, (0, 0, 255), -1)
 
